@@ -7,18 +7,7 @@ process(list | peek | send | kill)
 
 Pi extension for commands that take longer than expected.
 
-Commands start in the foreground as usual. If one is still running after a short window, it automatically continues in the background. Pi can keep working, end the turn if blocked, and gets woken up when the process finishes.
-
-## Why
-
-Long-running shell commands create an awkward choice for coding agents: block the turn waiting for completion, or manually push work into the background and keep checking it.
-
-To solve, we modify the bash tool:
-
-1. Start normally with `bash`.
-2. Return normally if it finishes quickly.
-3. Hand off to the background if it does not.
-4. Notify Pi once when it completes.
+Commands start in the foreground as usual. If one is still running after a short window, it automatically continues in the background. Pi can keep working, will end the turn if the process is blocking, and gets woken up when the process finishes.
 
 
 
