@@ -7,8 +7,7 @@ process(list | peek | send | kill)
 
 Pi extension for commands that take longer than expected.
 
-Commands start in the foreground as usual. If one is still running after a short window, it automatically continues in the background. Pi can keep working, will end the turn if the process is blocking, and gets woken up when the process finishes.
-
+Pi uses bash to run commands as usual. If one is still running after a short window, the tool ends and process continues in the background. Pi can keep working with other things, and will end the turn if the background process is a blocking one. When the process finishes, Pi is woken up with the result.
 
 
 ## Install
@@ -34,6 +33,11 @@ process(kill, id)
 
 `peek` returns a bounded output tail. Full stdout/stderr is written to an owner-only session log.
 
+## Terminal Logs
+
+Run /ps for a detailed view of the jobs. Enter to see full logs.
+
+
 ## Configuration
 
 Optional project-local configuration lives at:
@@ -44,5 +48,5 @@ Optional project-local configuration lives at:
 
 The main setting is `yieldAfterMs`, which controls how long a command stays in the foreground before being handed off. The default is 10 seconds.
 
-A `bash` `timeout` is separate: it remains a hard total-runtime limit even after handoff.
+
 
