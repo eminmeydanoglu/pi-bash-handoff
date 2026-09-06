@@ -1,0 +1,54 @@
+{
+  "name": "pi-bash-handoff",
+  "version": "0.1.0",
+  "description": "A minimal Pi extension that automatically hands long bash commands to managed background processes and delivers one completion follow-up.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eminmeydanoglu/pi-bash-handoff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eminmeydanoglu/pi-bash-handoff/issues"
+  },
+  "homepage": "https://github.com/eminmeydanoglu/pi-bash-handoff#readme",
+  "type": "module",
+  "engines": { "node": ">=22.19.0" },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi",
+    "pi-coding-agent",
+    "bash",
+    "background-processes",
+    "process-management",
+    "event-driven",
+    "foreground-handoff"
+  ],
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "UPSTREAM.md",
+    "background-processes.example.json"
+  ],
+  "pi": { "extensions": ["./src"] },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": ">=0.85.0",
+    "typebox": "^1.0.0"
+  },
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "@earendil-works/pi-agent-core": "0.85.1",
+    "@earendil-works/pi-tui": "0.85.1",
+    "@types/node": "^22.0.0",
+    "typebox": "^1.0.21",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

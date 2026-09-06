@@ -1,0 +1,12 @@
+{
+  "yieldAfterMs": 10000,
+  "killGraceMs": 1000,
+  "peekDefaultLines": 80,
+  "peekMaxLines": 100,
+  "peekMaxBytes": 16384,
+  "completionLines": 15,
+  "completionMaxBytes": 8192,
+  "recentTaskLimit": 32,
+  "memoryTailMaxLines": 400,
+  "memoryTailMaxBytes": 131072
+}

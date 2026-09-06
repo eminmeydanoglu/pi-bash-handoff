@@ -1,0 +1,9 @@
+node_modules/
+*.tgz
+
+# Local Pi package installation and project-specific lifecycle choices.
+.pi/settings.json
+.pi/background-processes.json
+
+# Local session exports may contain conversation and tool output.
+pi-session-*.html
