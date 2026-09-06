@@ -13,12 +13,10 @@ Pi uses bash to run commands as usual. If one is still running after a short win
 ## Install
 
 ```sh
-pi install git:github.com/eminmeydanoglu/pi-bash-handoff@v0.1.0 --local
+pi install git:github.com/eminmeydanoglu/pi-bash-handoff@v0.1.0
 ```
 
-Restart Pi from the project.
-
-For a global installation, omit `--local`.
+Restart Pi.
 
 ## Process control
 
