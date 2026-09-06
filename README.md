@@ -1,119 +1,59 @@
 # pi-bash-handoff
 
-A deliberately small Pi extension: long `bash` commands are started once,
-return normally when quick, or automatically hand off after a configurable
-foreground window. A background process writes a full owner-only disk log and
-emits one `followUp` completion event. It is an asynchronous dependency, not a
-thing an agent polls or waits for.
-
-## Model interface
-
-The extension registers only two model-facing tools:
-
 ```text
 bash(command, timeout?)
 process(list | peek | send | kill)
 ```
 
-## Install
+Pi extension for commands that take longer than expected.
 
-Install into the current, trusted Pi project from the tagged GitHub release:
+Commands start in the foreground as usual. If one is still running after a short window, it automatically continues in the background. Pi can keep working, end the turn if blocked, and gets woken up when the process finishes.
+
+## Why
+
+Long-running shell commands create an awkward choice for coding agents: block the turn waiting for completion, or manually push work into the background and keep checking it.
+
+To solve, we modify the bash tool:
+
+1. Start normally with `bash`.
+2. Return normally if it finishes quickly.
+3. Hand off to the background if it does not.
+4. Notify Pi once when it completes.
+
+
+
+## Install
 
 ```sh
 pi install git:github.com/eminmeydanoglu/pi-bash-handoff@v0.1.0 --local
 ```
 
-Then restart Pi from that project. To develop this checkout directly instead,
-retain the project package entry and run `pi` from this directory.
+Restart Pi from the project.
 
-For a global Pi installation, omit `--local`:
+For a global installation, omit `--local`.
 
-```sh
-pi install git:github.com/eminmeydanoglu/pi-bash-handoff@v0.1.0
+## Process control
+
+`process` exists for Pi to inspect or control a running task.
+
+```text
+process(list)
+process(peek, id)
+process(send, id, input | key)
+process(kill, id)
 ```
 
-`timeout` is a total-runtime hard timeout in seconds; it is unrelated to the
-10-second default handoff window. `process.peek` returns a bounded tail (at
-most 100 lines / 16 KiB). Full combined stdout/stderr logs live in an owner-only
-session directory under `/tmp/pi-background-processes` and are never offered
-as a model-facing full-log reader.
+`peek` returns a bounded output tail. Full stdout/stderr is written to an owner-only session log.
 
-`process` is sent to model providers as one flat JSON object rather than a
-root `anyOf` union. This is intentional: it keeps tool-call generation reliable
-with CommandCode GLM. `action` is required and is one of `list`, `peek`,
-`send`, or `kill`; `id` is required for every action except `list`; and `send`
-requires exactly one of `input` or `key`. The extension enforces those
-action-specific rules at execution time.
+## Configuration
 
-V1 uses stdin pipes, not a PTY. Line-oriented programs can receive text,
-Enter, Ctrl-C, Ctrl-D, Escape, Tab, and Backspace. Full-screen applications are
-intentionally out of scope.
+Optional project-local configuration lives at:
 
-## Project configuration
-
-Configuration is deliberately project-local and is read once when Pi starts
-the extension. Copy `background-processes.example.json` to
-`.pi/background-processes.json`, or create that file directly. A missing file
-uses these same defaults:
-
-```json
-{
-  "yieldAfterMs": 10000,
-  "killGraceMs": 1000,
-  "peekDefaultLines": 80,
-  "peekMaxLines": 100,
-  "peekMaxBytes": 16384,
-  "completionLines": 15,
-  "completionMaxBytes": 8192,
-  "recentTaskLimit": 32,
-  "memoryTailMaxLines": 400,
-  "memoryTailMaxBytes": 131072
-}
+```text
+.pi/background-processes.json
 ```
 
-- `yieldAfterMs`: foreground time before automatic handoff; it is not the
-  per-command hard timeout.
-- `killGraceMs`: time between `SIGTERM` and escalation to `SIGKILL` for an
-  intentional `process.kill`.
-- `peek*` and `completion*`: bounded model-facing output; they never change
-  the complete owner-only disk log.
-- `recentTaskLimit`: number of settled task summaries retained for `list` and
-  `/ps`.
-- `memoryTail*`: memory retained for live `peek`, completion, and UI tails.
+The main setting is `yieldAfterMs`, which controls how long a command stays in the foreground before being handed off. The default is 10 seconds.
 
-Every configured value must be an integer in its documented safe range. Unknown
-keys and invalid values fail Pi startup rather than silently altering task
-lifecycle behavior.
+A `bash` `timeout` is separate: it remains a hard total-runtime limit even after handoff.
 
-Run `/ps` for the human-only live process viewer. The small widget appears only
-while work is active. `/ps` has list/detail views, live event-driven updates,
-and `x` to kill a selected active task.
-
-## Development
-
-```sh
-npm install
-npm run check
-pi --extension ./src
-```
-
-The process manager is session-scoped. Pi session shutdown terminates owned
-process groups, flushes logs, and intentionally generates no completion wake.
-
-## Release contract
-
-The model-facing contract is `bash(command, timeout?)` plus the four `process`
-actions. Changes to those schemas, their lifecycle semantics, or completion
-delivery are breaking behavior. While this package is below `1.0.0`, use patch
-releases for fixes and minor releases for intentional contract changes.
-
-Before publishing, run:
-
-```sh
-npm run check
-npm pack --dry-run
-git status --short
-```
-
-The published source of truth is the GitHub tag. The package manifest includes
-the matching repository, homepage, and issue-tracker metadata.
